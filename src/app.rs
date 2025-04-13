@@ -100,13 +100,25 @@ impl eframe::App for ClockrApp {
                 ui.label(RichText::new(self.format_time()).font(FontId::proportional(80.0)));
 
                 if self.is_timer_finished() {
-                    ui.heading("Split finished");
+                    egui::Frame::none()
+                        .fill(egui::Color32::ORANGE)
+                        .show(ui, |ui| {
+                            ui.heading("Split Finished");
+                        });
                 }
             }
 
-            if ui.button("Start Timer").clicked() {
-                self.start_timer(30);
-            }
+            ui.horizontal(|ui| {
+                if ui.button("Start Work Timer").clicked() {
+                    self.start_timer(60 * 25);
+                }
+                if ui.button("Start Break Timer").clicked() {
+                    self.start_timer(60 * 5);
+                }
+                if ui.button("Start Long Timer").clicked() {
+                    self.start_timer(60 * 15);
+                }
+            });
             // ui.add(egui::widgets::ProgressBar::new(self.repeats_f32));
             //then clock to countdown each section, maybe with themed colours
         });
