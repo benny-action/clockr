@@ -5,9 +5,6 @@ use egui::{CentralPanel, Context};
 use std::time::{Duration, Instant};
 
 pub struct ClockrApp {
-    // Example stuff:
-    counter: i32,
-    name: String,
     //timer fields
     timer_start_time: Instant,
     timer_duration: Duration,
@@ -19,9 +16,6 @@ impl ClockrApp {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            counter: 0,
-            name: "Work".to_string(),
-
             timer_start_time: Instant::now(),
             timer_duration: Duration::from_secs(60),
             timer_active: false,
@@ -94,21 +88,26 @@ impl eframe::App for ClockrApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Pomodoro Timer");
+            ui.vertical_centered_justified(|ui| {
+                ui.heading("Pomodoro Timer");
+                ui.separator();
 
-            if self.timer_active {
-                ui.label(RichText::new(self.format_time()).font(FontId::proportional(80.0)));
+                if self.timer_active {
+                    ui.label(RichText::new(self.format_time()).font(FontId::proportional(80.0)));
 
-                if self.is_timer_finished() {
-                    egui::Frame::none()
-                        .fill(egui::Color32::ORANGE)
-                        .show(ui, |ui| {
-                            ui.heading("Split Finished");
-                        });
+                    if self.is_timer_finished() {
+                        egui::Frame::none()
+                            .fill(egui::Color32::ORANGE)
+                            .show(ui, |ui| {
+                                ui.heading("Split Finished");
+                            });
+                    }
+                } else {
+                    ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)));
                 }
-            }
 
-            ui.horizontal(|ui| {
+                ui.separator();
+
                 if ui.button("Start Work Timer").clicked() {
                     self.start_timer(60 * 25);
                 }
