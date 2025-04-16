@@ -80,7 +80,12 @@ impl eframe::App for ClockrApp {
                             ctx.send_viewport_cmd(egui::ViewportCommand::Close);
                         }
                     });
-                    ui.add_space(16.0);
+                    ui.menu_button("Options", |ui| {
+                        if ui.button("Timer Lengths").clicked() {
+                            // open combo box or fn.popup_above_or_below thing
+                            // TODO: add options to change the time lengths
+                        }
+                    });
                 }
 
                 egui::widgets::global_theme_preference_buttons(ui);
@@ -101,6 +106,9 @@ impl eframe::App for ClockrApp {
                             .show(ui, |ui| {
                                 ui.heading("Split Finished");
                             });
+                        // TODO: change the logic here so that the "split finished" memo doesn't
+                        // break the size of the ui, instead fills the big timer spot.
+                        // TODO: add a notification sound and a logo
                     }
                 } else {
                     ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)));
@@ -118,8 +126,6 @@ impl eframe::App for ClockrApp {
                     self.start_timer(60 * 15);
                 }
             });
-            // ui.add(egui::widgets::ProgressBar::new(self.repeats_f32));
-            //then clock to countdown each section, maybe with themed colours
         });
     }
 }
