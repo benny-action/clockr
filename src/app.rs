@@ -9,16 +9,36 @@ pub struct ClockrApp {
     timer_start_time: Instant,
     timer_duration: Duration,
     timer_active: bool,
+    //--
+    default_timer_work: u64,
+    default_timer_break: u64,
+    default_timer_long: u64,
+    //--
+    user_work_length: u64,
+    user_break_length: u64,
+    user_long_length: u64,
     //#[serde(skip)] // This how you opt-out of serialization of a field
 }
 
 impl ClockrApp {
     /// Called once before the first frame.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        let default_work_length = 25;
+        let default_break_length = 5;
+        let default_long_length = 15;
+
         Self {
             timer_start_time: Instant::now(),
             timer_duration: Duration::from_secs(60),
             timer_active: false,
+            //--
+            default_timer_work: default_work_length,
+            default_timer_break: default_break_length,
+            default_timer_long: default_long_length,
+            //--
+            user_work_length: default_work_length,
+            user_break_length: default_break_length,
+            user_long_length: default_long_length,
         }
         // This is also where you can customize the look and feel of egui using
         // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
@@ -31,6 +51,12 @@ impl ClockrApp {
         self.timer_start_time = Instant::now();
         self.timer_duration = Duration::from_secs(seconds);
         self.timer_active = true;
+    }
+
+    pub fn reset_to_default(&mut self) {
+        self.user_work_length = self.default_timer_work;
+        self.user_break_length = self.default_timer_break;
+        self.user_long_length = self.default_timer_long;
     }
 
     pub fn remaining_time(&self) -> Duration {
@@ -81,9 +107,20 @@ impl eframe::App for ClockrApp {
                         }
                     });
                     ui.menu_button("Options", |ui| {
-                        if ui.button("Timer Lengths").clicked() {
-                            // open combo box or fn.popup_above_or_below thing
-                            // TODO: add options to change the time lengths
+                        ui.label("Work Duration:");
+                        ui.add(
+                            egui::Slider::new(&mut self.user_work_length, 1..=50).text("minutes"),
+                        );
+                        ui.label("Break Duration:");
+                        ui.add(
+                            egui::Slider::new(&mut self.user_break_length, 1..=50).text("minutes"),
+                        );
+                        ui.label("Long Duration:");
+                        ui.add(
+                            egui::Slider::new(&mut self.user_long_length, 1..=50).text("minutes"),
+                        );
+                        if ui.button("Reset to defaults").clicked() {
+                            self.reset_to_default();
                         }
                     });
                 }
@@ -117,13 +154,13 @@ impl eframe::App for ClockrApp {
                 ui.separator();
 
                 if ui.button("Start Work Timer").clicked() {
-                    self.start_timer(60 * 25);
+                    self.start_timer(60 * self.user_work_length);
                 }
                 if ui.button("Start Break Timer").clicked() {
-                    self.start_timer(60 * 5);
+                    self.start_timer(60 * self.user_break_length);
                 }
                 if ui.button("Start Long Timer").clicked() {
-                    self.start_timer(60 * 15);
+                    self.start_timer(60 * self.user_long_length);
                 }
             });
         });
