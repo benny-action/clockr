@@ -8,8 +8,8 @@ fn main() -> eframe::Result {
 
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([350.0, 240.0])
-            .with_min_inner_size([350.0, 240.0])
+            .with_inner_size([350.0, 250.0])
+            .with_min_inner_size([350.0, 250.0])
             .with_title_shown(false)
             .with_icon(
                 // NOTE: Adding an icon is optional

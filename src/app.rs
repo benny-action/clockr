@@ -1,14 +1,18 @@
 use egui::{FontId, RichText};
+use rodio::{Decoder, OutputStream, Sink};
 
-use eframe::{App, Frame};
-use egui::{CentralPanel, Context};
-use std::time::{Duration, Instant};
+use std::{
+    io::Cursor,
+    thread,
+    time::{Duration, Instant},
+};
 
 pub struct ClockrApp {
     //timer fields
     timer_start_time: Instant,
     timer_duration: Duration,
     timer_active: bool,
+    timer_just_finished: bool,
     //--
     default_timer_work: u64,
     default_timer_break: u64,
@@ -31,6 +35,7 @@ impl ClockrApp {
             timer_start_time: Instant::now(),
             timer_duration: Duration::from_secs(60),
             timer_active: false,
+            timer_just_finished: false,
             //--
             default_timer_work: default_work_length,
             default_timer_break: default_break_length,
@@ -82,17 +87,44 @@ impl ClockrApp {
     pub fn is_timer_finished(&self) -> bool {
         self.timer_active && self.remaining_time() == Duration::ZERO
     }
+
+    //notification sounds stuff
+    pub fn play_notification_sound(&self) {
+        let beep_sound = include_bytes!("../assets/beep.mp3");
+
+        if let Ok((stream, stream_handle)) = OutputStream::try_default() {
+            if let Ok(sink) = Sink::try_new(&stream_handle) {
+                let cursor = Cursor::new(beep_sound);
+
+                if let Ok(source) = Decoder::new(cursor) {
+                    sink.append(source);
+                    sink.sleep_until_end();
+                }
+            }
+        }
+    }
 }
 
 impl eframe::App for ClockrApp {
     /// Called each time the UI needs repainting, which may be many times per second.
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // timer update requester
+
+        let finished_now =
+            self.is_timer_finished() && self.timer_active && !self.timer_just_finished;
+
+        if finished_now {
+            self.timer_just_finished = true;
+            self.play_notification_sound();
+        }
+
+        if self.timer_active && !self.is_timer_finished() {
+            self.timer_just_finished = false;
+        }
+
         if self.timer_active {
             ctx.request_repaint();
         }
-        // Put your widgets into a `SidePanel`, `TopBottomPanel`, `CentralPanel`, `Window` or `Area`.
-        // For inspiration and more examples, go to https://emilk.github.io/egui
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
@@ -143,8 +175,6 @@ impl eframe::App for ClockrApp {
                             .show(ui, |ui| {
                                 ui.heading("Split Finished");
                             });
-                        // TODO: change the logic here so that the "split finished" memo doesn't
-                        // break the size of the ui, instead fills the big timer spot.
                         // TODO: add a notification sound and a logo
                     }
                 } else {
