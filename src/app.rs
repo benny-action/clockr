@@ -13,6 +13,8 @@ pub struct ClockrApp {
     timer_duration: Duration,
     timer_active: bool,
     timer_just_finished: bool,
+    completed_timer_count: u32,
+    work_flag: bool,
     //--
     default_timer_work: u64,
     default_timer_break: u64,
@@ -30,12 +32,15 @@ impl ClockrApp {
         let default_work_length = 25;
         let default_break_length = 5;
         let default_long_length = 15;
+        let counter = 0;
 
         Self {
             timer_start_time: Instant::now(),
             timer_duration: Duration::from_secs(60),
             timer_active: false,
             timer_just_finished: false,
+            completed_timer_count: counter,
+            work_flag: false,
             //--
             default_timer_work: default_work_length,
             default_timer_break: default_break_length,
@@ -118,6 +123,11 @@ impl eframe::App for ClockrApp {
             self.play_notification_sound();
         }
 
+        if finished_now && self.work_flag {
+            self.completed_timer_count += 1;
+        }
+
+        //reset just finished flag when restarting timer.
         if self.timer_active && !self.is_timer_finished() {
             self.timer_just_finished = false;
         }
@@ -163,7 +173,8 @@ impl eframe::App for ClockrApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered_justified(|ui| {
-                ui.heading("Pomodoro Timer");
+                ui.heading(format!("Pomodoros: {}", self.completed_timer_count))
+                    .on_hover_text("Pomos = Work timed, remember to take a break");
                 ui.separator();
 
                 if self.timer_active {
@@ -175,7 +186,7 @@ impl eframe::App for ClockrApp {
                             .show(ui, |ui| {
                                 ui.heading("Split Finished");
                             });
-                        // TODO: add a notification sound and a logo
+                        // TODO: Add a pomo counter, plus a logo.
                     }
                 } else {
                     ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)));
@@ -185,12 +196,15 @@ impl eframe::App for ClockrApp {
 
                 if ui.button("Start Work Timer").clicked() {
                     self.start_timer(60 * self.user_work_length);
+                    self.work_flag = true;
                 }
                 if ui.button("Start Break Timer").clicked() {
                     self.start_timer(60 * self.user_break_length);
+                    self.work_flag = false;
                 }
                 if ui.button("Start Long Timer").clicked() {
                     self.start_timer(60 * self.user_long_length);
+                    self.work_flag = false;
                 }
             });
         });
