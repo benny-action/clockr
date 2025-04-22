@@ -136,6 +136,30 @@ impl eframe::App for ClockrApp {
             ctx.request_repaint();
         }
 
+        //keyboard input stuff.
+
+        if ctx.input(|i| i.key_pressed(egui::Key::W)) {
+            if self.timer_active {
+                self.timer_active = false;
+            } else {
+                self.start_timer(60 * self.user_work_length);
+            }
+        }
+        if ctx.input(|i| i.key_pressed(egui::Key::B)) {
+            if self.timer_active {
+                self.timer_active = false;
+            } else {
+                self.start_timer(60 * self.user_break_length);
+            }
+        }
+        if ctx.input(|i| i.key_pressed(egui::Key::L)) {
+            if self.timer_active {
+                self.timer_active = false;
+            } else {
+                self.start_timer(60 * self.user_long_length);
+            }
+        }
+
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
             // The top panel is often a good place for a menu bar:
 
@@ -174,7 +198,7 @@ impl eframe::App for ClockrApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.vertical_centered_justified(|ui| {
                 ui.heading(format!("Pomodoros: {}", self.completed_timer_count))
-                    .on_hover_text("Pomos = Work timed, remember to take a break");
+                    .on_hover_text_at_pointer("Pomos = Work timed, remember to take a break");
                 ui.separator();
 
                 if self.timer_active {
@@ -189,7 +213,10 @@ impl eframe::App for ClockrApp {
                         // TODO: Add a pomo counter, plus a logo.
                     }
                 } else {
-                    ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)));
+                    ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)))
+                        .on_hover_text_at_pointer(
+                            "W - Start Work \nB - Start Break \nL - Start Long Break",
+                        );
                 }
 
                 ui.separator();
