@@ -210,7 +210,6 @@ impl eframe::App for ClockrApp {
                             .show(ui, |ui| {
                                 ui.heading("Split Finished");
                             });
-                        // TODO: Add a pomo counter, plus a logo.
                     }
                 } else {
                     ui.label(RichText::new("Clockr").font(FontId::proportional(80.0)))
@@ -237,3 +236,12 @@ impl eframe::App for ClockrApp {
         });
     }
 }
+
+// TODO: Add proper logo
+// TODO: change sound to something less generic
+//
+// TODO: Add save states to look after the pomo count, and logic to reset it.
+//
+// TODO: Add logic to look after pausing a bit better. Through KB shortcuts.
+// TODO: Fix rubbish looking split finished colour thing.
+//
