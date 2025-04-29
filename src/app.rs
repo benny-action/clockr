@@ -144,6 +144,7 @@ impl eframe::App for ClockrApp {
             } else {
                 self.start_timer(60 * self.user_work_length);
             }
+            self.work_flag = true;
         }
         if ctx.input(|i| i.key_pressed(egui::Key::B)) {
             if self.timer_active {
@@ -151,6 +152,7 @@ impl eframe::App for ClockrApp {
             } else {
                 self.start_timer(60 * self.user_break_length);
             }
+            self.work_flag = false;
         }
         if ctx.input(|i| i.key_pressed(egui::Key::L)) {
             if self.timer_active {
@@ -158,6 +160,7 @@ impl eframe::App for ClockrApp {
             } else {
                 self.start_timer(60 * self.user_long_length);
             }
+            self.work_flag = false;
         }
 
         egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
@@ -237,7 +240,6 @@ impl eframe::App for ClockrApp {
     }
 }
 
-// TODO: Add proper logo
 // TODO: change sound to something less generic
 //
 // TODO: Add save states to look after the pomo count, and logic to reset it.
