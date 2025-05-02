@@ -211,7 +211,13 @@ impl eframe::App for ClockrApp {
                         egui::Frame::none()
                             .fill(egui::Color32::ORANGE)
                             .show(ui, |ui| {
-                                ui.heading("Split Finished");
+                                ui.label(
+                                    RichText::new("Split Finished")
+                                        .size(35.0)
+                                        .color(egui::Color32::BLACK)
+                                        .strong()
+                                        .italics(),
+                                );
                             });
                     }
                 } else {
